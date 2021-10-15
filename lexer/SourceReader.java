@@ -10,7 +10,7 @@ import java.io.*;
 public class SourceReader {
     private BufferedReader source;
     // line number of source program
-    private int lineno = 0;
+    private int lineNumber = 0;
     // position of last character processed
     private int position;
     // if true then last character read was newline so read in the next line
@@ -23,8 +23,6 @@ public class SourceReader {
    *  @exception IOException is thrown if there is an I/O problem
    */
   public SourceReader( String sourceFile ) throws IOException {
-    System.out.println( "Source file: " + sourceFile );
-    System.out.println( "user.dir: " + System.getProperty( "user.dir" ));
     source = new BufferedReader( new FileReader( sourceFile ));
   }
 
@@ -42,14 +40,9 @@ public class SourceReader {
    */
   public char read() throws IOException {
     if( isPriorEndLine ) {
-      lineno++;
+      lineNumber++;
       position = -1;
       nextLine = source.readLine();
-
-      if( nextLine != null ) {
-        System.out.println( "READLINE:   " + nextLine );
-      }
-
       isPriorEndLine = false;
     }
 
@@ -82,29 +75,17 @@ public class SourceReader {
   /**
    *  @return the line number of the character just read in
    */
-  public int getLineno() {
-    return lineno;
+  public int getLineNo() {
+    return lineNumber;
   }
 
-
-/*
-  public static void main( String args[] ) {
-    SourceReader s = null;
-
-    try {
-      s = new SourceReader( "t" );
-
-      while( true ) {
-        char ch = s.read();
-        System.out.println(
-           "Char: " + ch + " Line: " + s.lineno + "position: " + s.position
-        );
-      }
-    } catch( Exception e ) {}
-
-    if( s != null ) {
-      s.close();
-    }
+  /**
+   * Return the current line.
+   *
+   * @return the current line.
+   */
+  public String getLine() {
+    return nextLine;
   }
-*/
+
 }

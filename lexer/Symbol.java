@@ -10,13 +10,13 @@ public class Symbol {
   // token kind of symbol
   private Tokens kind;
 
-  private Symbol( String n, Tokens kind ) {
-    name = n;
+  private Symbol( String name, Tokens kind ) {
+    this.name = name;
     this.kind = kind;
   }
 
   // symbols contains all strings in the source program
-  private static java.util.HashMap<String,Symbol> symbols = new java.util.HashMap<String,Symbol>();
+  private static java.util.Map<String,Symbol> symbols = new java.util.HashMap<String,Symbol>();
 
   public String toString() {
     return name;
@@ -37,7 +37,6 @@ public class Symbol {
         // bogus string so don't enter into symbols
         return null;
       }
-      // System.out.println( "new symbol: " + u + " Kind: " + kind );
       s = new Symbol( newTokenString, kind );
       symbols.put( newTokenString, s );
     }

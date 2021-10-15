@@ -1,6 +1,7 @@
 package parser;
 
 import java.util.*;
+
 import lexer.*;
 import ast.*;
 
@@ -57,7 +58,7 @@ public class Parser {
     private Token currentToken;
     private Lexer lex;
     private EnumSet<Tokens> relationalOps
-            = EnumSet.of(Tokens.Equal, Tokens.NotEqual, Tokens.Less, Tokens.LessEqual);
+            = EnumSet.of(Tokens.Equal, Tokens.NotEqual, Tokens.Less, Tokens.LessEqual, Tokens.Greater, Tokens.GreaterEqual);
     private EnumSet<Tokens> addingOps
             = EnumSet.of(Tokens.Plus, Tokens.Minus, Tokens.Or);
     private EnumSet<Tokens> multiplyingOps
@@ -67,16 +68,17 @@ public class Parser {
      * Construct a new Parser;
      *
      * @param sourceProgram - source file name
-     * @exception Exception - thrown for any problems at startup (e.g. I/O)
+     * @throws Exception - thrown for any problems at startup (e.g. I/O)
      */
     public Parser(String sourceProgram) throws Exception {
         try {
             lex = new Lexer(sourceProgram);
             scan();
         } catch (Exception e) {
-            System.out.println("********exception*******" + e.toString());
+            System.out.println("******** exception *******" + e);
             throw e;
-        };
+        }
+        ;
     }
 
     public Lexer getLex() {
@@ -87,7 +89,7 @@ public class Parser {
      * Execute the parse command
      *
      * @return the AST for the source program
-     * @exception Exception - pass on any type of exception raised
+     * @throws Exception - pass on any type of exception raised
      */
     public AST execute() throws Exception {
         try {
@@ -105,7 +107,7 @@ public class Parser {
      * </pre>
      *
      * @return the program tree
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rProgram() throws SyntaxError {
         // note that rProgram actually returns a ProgramTree; we use the 
@@ -123,31 +125,34 @@ public class Parser {
      * </pre>
      *
      * @return block tree
-     * @exception SyntaxError - thrown for any syntax error e.g. an expected
-     * left brace isn't found
+     * @throws SyntaxError - thrown for any syntax error e.g. an expected
+     *                     left brace isn't found
      */
     public AST rBlock() throws SyntaxError {
         expect(Tokens.LeftBrace);
         AST t = new BlockTree();
         while (startingDecl()) {  // get decls
-                t.addKid(rDecl());
+            t.addKid(rDecl());
         }
         while (startingStatement()) {  // get statements
-                t.addKid(rStatement());
+            t.addKid(rStatement());
         }
         expect(Tokens.RightBrace);
+
         return t;
     }
 
     boolean startingDecl() {
-        if (isNextTok(Tokens.Int) || isNextTok(Tokens.BOOLean)) {
+        if (isNextTok(Tokens.Int) || isNextTok(Tokens.BOOLean) || isNextTok(Tokens.DateType) || isNextTok(Tokens.Number)) {
             return true;
         }
         return false;
     }
 
     boolean startingStatement() {
-        if (isNextTok(Tokens.If) || isNextTok(Tokens.While) || isNextTok(Tokens.Return)
+        if (isNextTok(Tokens.If) || isNextTok(Tokens.Else)
+                || isNextTok(Tokens.Doloop) || isNextTok(Tokens.For)
+                || isNextTok(Tokens.While) || isNextTok(Tokens.Return)
                 || isNextTok(Tokens.LeftBrace) || isNextTok(Tokens.Identifier)) {
             return true;
         }
@@ -161,7 +166,7 @@ public class Parser {
      * </pre>
      *
      * @return either the decl tree or the functionDecl tree
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rDecl() throws SyntaxError {
         AST t, t1;
@@ -183,13 +188,19 @@ public class Parser {
      * type -> 'int' type -> 'bool'
      * </pre>
      *
-     * @return either the intType or boolType tree
-     * @exception SyntaxError - thrown for any syntax error
+     * @return either the intType or boolType or numberType or dateType tree
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rType() throws SyntaxError {
         AST t;
         if (isNextTok(Tokens.Int)) {
             t = new IntTypeTree();
+            scan();
+        } else if (isNextTok(Tokens.Number)) {
+            t = new NumberTypeTree();
+            scan();
+        } else if (isNextTok(Tokens.DateType)) {
+            t = new DateTypeTree();
             scan();
         } else {
             expect(Tokens.BOOLean);
@@ -206,7 +217,7 @@ public class Parser {
      * </pre>
      *
      * @return the formals tree describing this list of formals
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rFunHead() throws SyntaxError {
         AST t = new FormalsTree();
@@ -233,40 +244,79 @@ public class Parser {
      * </pre>
      *
      * @return the tree corresponding to the statement found
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rStatement() throws SyntaxError {
         AST t;
+
         if (isNextTok(Tokens.If)) {
             scan();
             t = new IfTree();
             t.addKid(rExpr());
             expect(Tokens.Then);
             t.addKid(rBlock());
-            expect(Tokens.Else);
-            t.addKid(rBlock());
+
+            if (isNextTok(Tokens.Else)) {
+                scan();
+                t.addKid(rBlock());
+            }
+
             return t;
         }
+
         if (isNextTok(Tokens.While)) {
             scan();
             t = new WhileTree();
             t.addKid(rExpr());
             t.addKid(rBlock());
+
             return t;
         }
+
+        if (isNextTok(Tokens.For)) {
+            scan();
+            t = new ForTree();
+
+            t.addKid(rName());
+            expect(Tokens.In);
+            t.addKid(rList());
+
+            t.addKid(rBlock());
+            expect(Tokens.Else);
+            t.addKid(rBlock());
+
+            return t;
+        }
+
+        if (isNextTok(Tokens.Doloop)) {
+            scan();
+
+            t = new DoloopTree();
+            t.addKid(rBlock());
+            expect(Tokens.Until);
+            t.addKid(rExpr());
+
+            return t;
+        }
+
         if (isNextTok(Tokens.Return)) {
             scan();
             t = new ReturnTree();
             t.addKid(rExpr());
+
             return t;
         }
+
         if (isNextTok(Tokens.LeftBrace)) {
             return rBlock();
         }
+
+        // By default assignment
         t = rName();
         t = (new AssignTree()).addKid(t);
         expect(Tokens.Assign);
         t.addKid(rExpr());
+
         return t;
     }
 
@@ -276,7 +326,7 @@ public class Parser {
      * e -> se -> se '==' se ==> = -> se '!=' se ==> != -> se '<' se ==> < -> se
      * '<=' se ==> <= </pre> @return the tree corresponding to the expression
      *
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rExpr() throws SyntaxError {
         AST t, kid = rSimpleExpr();
@@ -298,7 +348,7 @@ public class Parser {
      * </pre>
      *
      * @return the tree corresponding to the adding expression
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rSimpleExpr() throws SyntaxError {
         AST t, kid = rTerm();
@@ -319,7 +369,7 @@ public class Parser {
      * </pre>
      *
      * @return the tree corresponding to the multiplying expression
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rTerm() throws SyntaxError {
         AST t, kid = rFactor();
@@ -339,7 +389,7 @@ public class Parser {
      * </pre>
      *
      * @return the tree corresponding to the factor expression
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rFactor() throws SyntaxError {
         AST t;
@@ -354,6 +404,17 @@ public class Parser {
             scan();
             return t;
         }
+        if (isNextTok(Tokens.NumberLit)) {  //  -> <NumberLit>
+            t = new NumberTree(currentToken);
+            scan();
+            return t;
+        }
+        if (isNextTok(Tokens.DateLit)) {  //  -> <DateLit>
+            t = new DateTree(currentToken);
+            scan();
+            return t;
+        }
+
         t = rName();
         if (!isNextTok(Tokens.LeftParen)) {  //  -> name
             return t;
@@ -374,6 +435,24 @@ public class Parser {
         return t;
     }
 
+    public AST rList() throws SyntaxError {
+        AST t;
+        expect(Tokens.LeftBracket);
+        t = new ListTree();
+
+        if (!isNextTok(Tokens.RightBracket)) {
+            t.addKid(rFactor());
+
+            while (isNextTok(Tokens.Comma)) {
+                scan();
+                t.addKid(rFactor());
+            }
+        }
+        expect(Tokens.RightBracket);
+
+        return t;
+    }
+
     /**
      * <
      * pre>
@@ -381,7 +460,7 @@ public class Parser {
      * </pre>
      *
      * @return the id tree
-     * @exception SyntaxError - thrown for any syntax error
+     * @throws SyntaxError - thrown for any syntax error
      */
     public AST rName() throws SyntaxError {
         AST t;
@@ -393,7 +472,7 @@ public class Parser {
         throw new SyntaxError(currentToken, Tokens.Identifier);
     }
 
-    AST getRelationTree() {  // build tree with current token's relation
+    private AST getRelationTree() {  // build tree with current token's relation
         Tokens kind = currentToken.getKind();
         if (relationalOps.contains(kind)) {
             AST t = new RelOpTree(currentToken);
@@ -443,9 +522,6 @@ public class Parser {
 
     private void scan() {
         currentToken = lex.nextToken();
-        if (currentToken != null) {
-            currentToken.print();   // debug printout
-        }
         return;
     }
 }
@@ -465,9 +541,9 @@ class SyntaxError extends Exception {
     /**
      * record the syntax error just encountered
      *
-     * @param tokenFound is the token just found by the parser
+     * @param tokenFound   is the token just found by the parser
      * @param kindExpected is the token we expected to find based on the current
-     * context
+     *                     context
      */
     public SyntaxError(Token tokenFound, Tokens kindExpected) {
         this.tokenFound = tokenFound;
@@ -475,8 +551,7 @@ class SyntaxError extends Exception {
     }
 
     void print() {
-        System.out.println("Expected: "
-                + kindExpected);
+        System.out.println("Expected: " + kindExpected);
         return;
     }
 }

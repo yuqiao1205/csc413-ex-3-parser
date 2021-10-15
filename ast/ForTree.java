@@ -2,12 +2,14 @@ package ast;
 
 import visitor.*;
 
-public class WhileTree extends AST {
+public class ForTree extends AST {
 
-    public WhileTree() {
+    public ForTree() {
     }
     @Override
     public Object accept(ASTVisitor v) {
-        return v.visitWhileTree(this);
+        return v.visitForTree(this);
     }
+
 }
+

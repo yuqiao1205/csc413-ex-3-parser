@@ -10,32 +10,24 @@ package lexer;
 public class Token {
   private int leftPosition,rightPosition;
   private Symbol symbol;
+  private int lineNumber;
 
   /**
    *  Create a new Token based on the given Symbol
    *  @param leftPosition is the source file column where the Token begins
    *  @param rightPosition is the source file column where the Token ends
+   *  @param lineNumber is the line in the source file where the token exists
+   *  @param symbol describes the characters in the token
    */
-  public Token( int leftPosition, int rightPosition, Symbol sym ) {
+  public Token( int leftPosition, int rightPosition, int lineNumber,Symbol symbol ) {
     this.leftPosition = leftPosition;
     this.rightPosition = rightPosition;
-    this.symbol = sym;
+    this.lineNumber = lineNumber;
+    this.symbol = symbol;
   }
-
   public Symbol getSymbol() {
     return symbol;
   }
-
-  public void print() {
-    System.out.println(
-      "       " + symbol.toString() +
-      "             left: " + leftPosition +
-      " right: " + rightPosition
-    );
-
-    return;
-  }
-
   public String toString() {
     return symbol.toString();
   }
@@ -48,6 +40,20 @@ public class Token {
     return rightPosition;
   }
 
+  public int getLineNumber() {
+    return lineNumber;
+  }
+
+  public void print() {
+    System.out.println(
+            "       " + symbol.toString() +
+                    "             left: " + leftPosition +
+                    " right: " + rightPosition +
+                    " token:" +  symbol.getKind()
+    );
+
+    return;
+  }
   /**
    *  @return the integer that represents the kind of symbol we have which
    *  is actually the type of token associated with the symbol

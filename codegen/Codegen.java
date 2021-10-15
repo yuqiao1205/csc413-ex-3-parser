@@ -318,8 +318,22 @@ public class Codegen extends ASTVisitor {
         //System.out.println("visitIntTypeTree");
         return null; }
 
+    @Override
+    public Object visitNumberTypeTree(AST t) {
+        return null;
+    }
+
+    @Override
+    public Object visitDateTypeTree(AST t) {
+        return null;
+    }
+
     public Object visitBoolTypeTree(AST t) {
         //System.out.println("visitBoolTypeTree");
+        return null; }
+
+    public Object NumberTypeTree(AST t) {
+        //System.out.println("visitNumberTypeTree");
         return null; }
 
     public Object visitFormalsTree(AST t) {
@@ -379,7 +393,12 @@ public class Codegen extends ASTVisitor {
         return null;
     }
 
-/** <pre>
+    @Override
+    public Object visitDoloopTree(AST t) {
+        return null;
+    }
+
+    /** <pre>
  *  Generate codes for the return tree:<br><br>
  *
  *  &LT;generate codes for the expression that will be returned&GT;
@@ -424,7 +443,17 @@ public class Codegen extends ASTVisitor {
         return null;
     }
 
-/** <pre>
+    @Override
+    public Object visitNumberTree(AST t) {
+        return null;
+    }
+
+    @Override
+    public Object visitDateTree(AST t) {
+        return null;
+    }
+
+    /** <pre>
  *  Load a variable:
  *  LOAD <i>offset</i>  -- load variable using the offset recorded in the AST
  *  </pre>
@@ -486,6 +515,16 @@ public class Codegen extends ASTVisitor {
         t.getKid(1).accept(this);
         t.getKid(2).accept(this);
         storeop(new LabelOpcode(Codes.ByteCodes.BOP,op));
+        return null;
+    }
+
+    @Override
+    public Object visitListTree(AST t) {
+        return null;
+    }
+
+    @Override
+    public Object visitForTree(AST t) {
         return null;
     }
 }

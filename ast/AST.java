@@ -19,7 +19,7 @@ public abstract class AST {
     static int NodeCount = 0;
 
     public AST() {
-        kids = new ArrayList<AST>();
+        kids = new ArrayList<>();
         NodeCount++;
         nodeNum = NodeCount;
     }

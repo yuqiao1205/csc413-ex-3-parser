@@ -75,6 +75,12 @@ public class CountVisitor extends ASTVisitor {
     return null;
   }
 
+  @Override
+  public Object visitDateTypeTree(AST t) {
+    count(t);
+    return null;
+  }
+
   public Object visitScientificTypeTree(AST t) {
     count(t);
     return null;
@@ -115,6 +121,11 @@ public class CountVisitor extends ASTVisitor {
     return null;
   }
 
+  public Object visitDoloopTree(AST t) {
+    count(t);
+    return null;
+  }
+
   public Object visitForTree(AST t) {
     count(t);
     return null;
@@ -136,6 +147,11 @@ public class CountVisitor extends ASTVisitor {
   }
 
   public Object visitNumberTree(AST t) {
+    count(t);
+    return null;
+  }
+
+  public Object visitDateTree(AST t) {
     count(t);
     return null;
   }
@@ -171,6 +187,12 @@ public class CountVisitor extends ASTVisitor {
   }
 
   public Object visitMultOpTree(AST t) {
+    count(t);
+    return null;
+  }
+
+  @Override
+  public Object visitListTree(AST t) {
     count(t);
     return null;
   }

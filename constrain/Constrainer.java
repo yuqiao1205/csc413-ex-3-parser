@@ -2,6 +2,7 @@ package constrain;
 
 import lexer.*;
 import parser.Parser;
+import sun.reflect.generics.tree.TypeTree;
 import visitor.*;
 import ast.*;
 import java.util.*;
@@ -49,7 +50,7 @@ public class Constrainer extends ASTVisitor {
  *  source program trees to ensure consisten processing of 
  *  functions, etc.
 */
-    public static AST readTree, writeTree, intTree, boolTree,
+    public static AST readTree, writeTree, intTree, numberTree, dateTree,boolTree,
                falseTree, trueTree, readId, writeId;
                
     public Constrainer(AST t, Parser parser) {
@@ -112,13 +113,18 @@ public class Constrainer extends ASTVisitor {
         writeId = new IdTree(lex.newIdToken("write",-1,-1));
         boolTree = (new DeclTree()).addKid(new BoolTypeTree()).
                  addKid(new IdTree(lex.newIdToken("<<bool>>",-1,-1)));
-        decorate(boolTree.getKid(2),boolTree);  
+        decorate(boolTree.getKid(2),boolTree);
+        dateTree = (new DeclTree()).addKid(new DateTypeTree()).
+                addKid(new IdTree(lex.newIdToken("<<number>>",-1,-1)));
+        decorate(dateTree.getKid(2), dateTree);
+        numberTree = (new DeclTree()).addKid(new NumberTypeTree()).
+                addKid(new IdTree(lex.newIdToken("<<number>>",-1,-1)));
+        decorate(intTree.getKid(2), numberTree);
         intTree = (new DeclTree()).addKid(new IntTypeTree()).
                  addKid(new IdTree(lex.newIdToken("<<int>>",-1,-1)));
         decorate(intTree.getKid(2),intTree);  
         // to facilitate type checking; this ensures int decls and id decls
         // have the same structure
-        
         // read tree takes no parms and returns an int
         readTree = (new FunctionDeclTree()).addKid(new IntTypeTree()).
                        addKid(readId).addKid(new FormalsTree()).
@@ -257,8 +263,13 @@ public class Constrainer extends ASTVisitor {
         t.getKid(2).accept(this);
         return null;
     }
-        
-/**
+
+    @Override
+    public Object visitDoloopTree(AST t) {
+        return null;
+    }
+
+    /**
  *  Constrain the Return tree:<br>
  *  Check that the returned expression type matches the type indicated
  *  in the function we're returning from
@@ -301,7 +312,19 @@ public class Constrainer extends ASTVisitor {
         decorate(t,intTree);
         return intTree;
     }
-        
+
+    @Override
+    public Object visitNumberTree(AST t) {
+        decorate(t,numberTree);
+        return numberTree;
+    }
+
+    @Override
+    public Object visitDateTree(AST t) {
+        decorate(t,dateTree);
+        return dateTree;
+    }
+
     public Object visitIdTree(AST t) {
         AST decl = lookup(t);
         decorate(t,decl);
@@ -339,7 +362,28 @@ public class Constrainer extends ASTVisitor {
         return visitAddOpTree(t);
     }
 
+    @Override
+    public Object visitListTree(AST t) {
+        return null;
+    }
+
+    @Override
+    public Object visitForTree(AST t) {
+        return null;
+    }
+
     public Object visitIntTypeTree(AST t) {return null;}
+
+    @Override
+    public Object visitNumberTypeTree(AST t) {
+        return null;
+    }
+
+    @Override
+    public Object visitDateTypeTree(AST t) {
+        return null;
+    }
+
     public Object visitBoolTypeTree(AST t) {return null;}
     public Object visitFormalsTree(AST t) {return null;}
     public Object visitActualArgsTree(AST t) {return null;}

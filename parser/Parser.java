@@ -111,7 +111,7 @@ public class Parser {
      * @throws SyntaxError - thrown for any syntax error
      */
     public AST rProgram() throws SyntaxError {
-        // note that rProgram actually returns a ProgramTree; we use the 
+        // note that rProgram actually returns a ProgramTree; we use the
         // principle of substitutability to indicate it returns an AST
         AST t = new ProgramTree();
         expect(Tokens.Program);
@@ -544,7 +544,7 @@ class SyntaxError extends Exception {
         this.kindExpected = kindExpected;
     }
 
-    void print() {
+    public void print() {
         System.out.println("Expected: " + kindExpected);
     }
 }

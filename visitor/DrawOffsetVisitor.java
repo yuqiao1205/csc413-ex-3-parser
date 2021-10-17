@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 
 /**
- *
  * @author Lowell Milliken
  */
 public class DrawOffsetVisitor extends ASTVisitor {
@@ -21,13 +20,9 @@ public class DrawOffsetVisitor extends ASTVisitor {
     private final int hstep;
     private final int vstep;
 
-    private int width;
-    private int height;
-
     private BufferedImage bimg;
     private Graphics2D g2;
     private Map<AST, Position> offset;
-
 
 
     public DrawOffsetVisitor(int[] nCount, Map<AST, Position> offset) {
@@ -35,8 +30,8 @@ public class DrawOffsetVisitor extends ASTVisitor {
         this.hstep = nodew + horizSep;
         this.vstep = nodeh + vertSep;
 
-        width = (getMaxOffset(offset) + 1) * this.hstep;
-        height = nCount.length * this.vstep;
+        int width = (getMaxOffset(offset) + 1) * this.hstep;
+        int height = nCount.length * this.vstep;
 
         g2 = createGraphics2D(width, height);
     }
@@ -55,8 +50,8 @@ public class DrawOffsetVisitor extends ASTVisitor {
     public void draw(String s, AST t) {
         Position position = offset.get(t);
 
-        int x = position.getOffset() * hstep + horizSep/2;
-        int y = position.getDepth() * vstep + vertSep/2;
+        int x = position.getOffset() * hstep + horizSep / 2;
+        int y = position.getDepth() * vstep + vertSep / 2;
 
         g2.setColor(Color.BLACK);
         g2.setPaint(new Color(160, 202, 252));
@@ -72,8 +67,8 @@ public class DrawOffsetVisitor extends ASTVisitor {
 
         for (int i = 0; i < t.kidCount(); i++) {
             Position kidPosition = offset.get(t.getKids().get(i));
-            endx = kidPosition.getOffset() * hstep + horizSep/2 + nodew / 2;
-            endy = kidPosition.getDepth() * vstep + vertSep/2;
+            endx = kidPosition.getOffset() * hstep + horizSep / 2 + nodew / 2;
+            endy = kidPosition.getDepth() * vstep + vertSep / 2;
             g2.drawLine(startx, starty, endx, endy);
         }
 

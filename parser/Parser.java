@@ -34,6 +34,8 @@ import ast.*;
  *    -> SE �!=� SE   ==> !=
  *    -> SE �<�  SE   ==> <
  *    -> SE �<=� SE   ==> <=
+ *    -> SE �>� SE   ==> >
+ *    -> SE �>=� SE   ==> >=
  *
  *  SE  ->  T
  *      ->  SE �+� T  ==> +
@@ -78,7 +80,6 @@ public class Parser {
             System.out.println("******** exception *******" + e);
             throw e;
         }
-        ;
     }
 
     public Lexer getLex() {
@@ -142,21 +143,15 @@ public class Parser {
         return t;
     }
 
-    boolean startingDecl() {
-        if (isNextTok(Tokens.Int) || isNextTok(Tokens.BOOLean) || isNextTok(Tokens.DateType) || isNextTok(Tokens.Number)) {
-            return true;
-        }
-        return false;
+    public boolean startingDecl() {
+        return isNextTok(Tokens.Int) || isNextTok(Tokens.BOOLean) || isNextTok(Tokens.DateType) || isNextTok(Tokens.Number);
     }
 
-    boolean startingStatement() {
-        if (isNextTok(Tokens.If) || isNextTok(Tokens.Else)
+    public boolean startingStatement() {
+        return isNextTok(Tokens.If) || isNextTok(Tokens.Else)
                 || isNextTok(Tokens.Doloop) || isNextTok(Tokens.For)
                 || isNextTok(Tokens.While) || isNextTok(Tokens.Return)
-                || isNextTok(Tokens.LeftBrace) || isNextTok(Tokens.Identifier)) {
-            return true;
-        }
-        return false;
+                || isNextTok(Tokens.LeftBrace) || isNextTok(Tokens.Identifier);
     }
 
     /**
@@ -522,7 +517,6 @@ public class Parser {
 
     private void scan() {
         currentToken = lex.nextToken();
-        return;
     }
 }
 
@@ -552,6 +546,5 @@ class SyntaxError extends Exception {
 
     void print() {
         System.out.println("Expected: " + kindExpected);
-        return;
     }
 }
